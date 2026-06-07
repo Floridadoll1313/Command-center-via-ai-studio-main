@@ -1,0 +1,6 @@
+{
+  "name": "Ocean Command Center",
+  "description": "SaaS dashboard to monitor GitHub repositories, manage Stripe subscription waves, and stream Supabase events in real-time.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
