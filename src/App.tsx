@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useEvents } from './hooks/useEvents';
 import { Project, Repo, Customer, StripeStatus, LogEvent } from './types';
 import {
@@ -353,6 +354,7 @@ export default function App() {
         </div>
       </footer>
 
+      <SpeedInsights />
     </div>
   );
 }
