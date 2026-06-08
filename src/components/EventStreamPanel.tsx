@@ -104,6 +104,11 @@ export default function EventStreamPanel({
     e.preventDefault();
     saveSupabaseCredentials(supabaseUrlInput, supabaseKeyInput);
     
+    // Refresh states with clean parsed credentials
+    const cleanCreds = getSupabaseCredentials();
+    setSupabaseUrlInput(cleanCreds.url);
+    setSupabaseKeyInput(cleanCreds.key);
+
     setIsSavedSuccessfully(true);
     setTimeout(() => {
       setIsSavedSuccessfully(false);

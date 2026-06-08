@@ -2,13 +2,39 @@ import { createClient } from '@supabase/supabase-js';
 
 const meta = import.meta as any;
 
+// Sanitizes pasted or environment credentials
+export function cleanSupabaseUrl(url: string): string {
+  let cleaned = (url || '').trim().replace(/['"`;\s]/g, '');
+  if (!cleaned) return '';
+
+  // Intercept double-paste such as 'https://xxx.supabase.cohttps://xxx.supabase.co'
+  const parts = cleaned.split('https://');
+  if (parts.length > 2) {
+    // parts would look like ["", "xxx.supabase.co", "xxx.supabase.co"]
+    const firstRealPart = parts.find(p => p.length > 0);
+    if (firstRealPart) {
+      cleaned = 'https://' + firstRealPart;
+    }
+  }
+
+  // Remove any trailing slashes
+  return cleaned.replace(/\/+$/, '');
+}
+
+export function cleanSupabaseKey(key: string): string {
+  return (key || '').trim().replace(/['"`;\s]/g, '');
+}
+
 // Helper to retrieve current credentials (from localStorage first, then from environment/meta variables)
 export function getSupabaseCredentials() {
   const localUrl = localStorage.getItem('ocean_supabase_url');
   const localKey = localStorage.getItem('ocean_supabase_anon_key');
   
-  const finalUrl = localUrl || meta.env?.VITE_SUPABASE_URL || '';
-  const finalKey = localKey || meta.env?.VITE_SUPABASE_ANON_KEY || meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+  const rawUrl = localUrl || meta.env?.VITE_SUPABASE_URL || '';
+  const rawKey = localKey || meta.env?.VITE_SUPABASE_ANON_KEY || meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+
+  const finalUrl = cleanSupabaseUrl(rawUrl);
+  const finalKey = cleanSupabaseKey(rawKey);
 
   const forceSandbox = localStorage.getItem('ocean_force_sandbox') === 'true';
 
@@ -28,14 +54,17 @@ export function setSandboxModeEnforced(enforced: boolean) {
 
 // Function to store custom overrides
 export function saveSupabaseCredentials(url: string, key: string) {
-  if (url.trim()) {
-    localStorage.setItem('ocean_supabase_url', url.trim());
+  const cleanedUrl = cleanSupabaseUrl(url);
+  const cleanedKey = cleanSupabaseKey(key);
+
+  if (cleanedUrl) {
+    localStorage.setItem('ocean_supabase_url', cleanedUrl);
   } else {
     localStorage.removeItem('ocean_supabase_url');
   }
 
-  if (key.trim()) {
-    localStorage.setItem('ocean_supabase_anon_key', key.trim());
+  if (cleanedKey) {
+    localStorage.setItem('ocean_supabase_anon_key', cleanedKey);
   } else {
     localStorage.removeItem('ocean_supabase_anon_key');
   }
